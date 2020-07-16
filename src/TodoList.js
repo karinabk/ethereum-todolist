@@ -32,18 +32,13 @@ class TodoList extends Component {
               {this.state.todoItems.map((item, itemIndex) =>
                 item.value && (
                   <TodoItem key={itemIndex} input>
-
-                    {/* <input type="checkbox" className="regular-checkbox"/> */}
                     <input type="checkbox"
-                      // checked={this.state.checked}
                       onClick={() => this.handleCheckboxChange(itemIndex)}
                     />
                     <DestroyBtn onClick={() => this.deleteTodoItem(itemIndex)}>×</DestroyBtn>
                     <ItemLabel >{item.value}</ItemLabel>
                     {this.state.voted[0] ? (
                       <Text>{`Votes: ${item.votes}`}</Text>
-                      // {this.state.voted[1] === itemIndex && 
-                      // <Text>Voted! </Text> }
                     ) : (
 
                         <VoteBtn onClick={() => { this.castVote(itemIndex) }}>Vote</VoteBtn>
@@ -52,20 +47,7 @@ class TodoList extends Component {
             </List>
           }
         </TodoListContainer>
-        <PendingContainer>
-          <Pending
-            active={this.state.pending}
-            activeColor="red"
-          >
-            Transaction Pending
-          </Pending>
-          <Pending
-            active={this.state.calling}
-            activeColor="#5eef8b"
-          >
-            Reading Blockchain
-          </Pending>
-        </PendingContainer>
+        <Address>Your account: {this.state.account}</Address>
       </Container>
     );
   }
@@ -298,15 +280,13 @@ const DestroyBtn = styled(Button)`
   cursor: pointer;
 `;
 
-const PendingContainer = styled.div`
+const Address = styled.div`
   position: fixed;
-  top: 0;
+  top: 2%;
   right: 0;
+  color: #504048;;
 `;
 
-const Pending = styled.div`
-  color: ${props => props.active ? props.activeColor || 'red' : '#c7c7c7'};
-`;
 
 injectGlobal`
   @import url('https://fonts.googleapis.com/css?family=Roboto');

@@ -6,15 +6,14 @@ contract TodoList {
 
     struct TodoItem {
         bytes32 value;
-        bool active;
         uint256 votes;
         bool checked;
     }
 
-    function makeVote(uint256 index) public returns (uint256 percents) {
+    function makeVote(uint256 index) public returns (uint256 votes) {
         todoItems[index].votes++;
         totalVotes++;
-        return todoItems[index].votes / totalVotes;
+        return todoItems[index].votes;
     }
 
     function check(uint256 index) public {
@@ -28,7 +27,6 @@ contract TodoList {
     function addTodoItem(bytes32 _value) public returns (bool success) {
         TodoItem memory todoItem;
         todoItem.value = _value;
-        todoItem.active = false;
         todoItem.checked = false;
         todoItems.push(todoItem);
         return true;
@@ -39,7 +37,6 @@ contract TodoList {
         view
         returns (
             bytes32[] memory,
-            bool[] memory,
             uint256[] memory,
             bool[] memory
         )
@@ -47,18 +44,16 @@ contract TodoList {
         uint256 length = todoItems.length;
 
         bytes32[] memory values = new bytes32[](length);
-        bool[] memory actives = new bool[](length);
         uint256[] memory voteItems = new uint256[](length);
         bool[] memory checked = new bool[](length);
 
         for (uint256 i = 0; i < length; i++) {
             values[i] = todoItems[i].value;
-            actives[i] = todoItems[i].active;
             voteItems[i] = todoItems[i].votes;
             checked[i] = todoItems[i].checked;
         }
 
-        return (values, actives, voteItems, checked);
+        return (values, voteItems, checked);
     }
 
     function deleteTodoItem(uint256 index) public returns (bool success) {
