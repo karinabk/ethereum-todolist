@@ -32,12 +32,12 @@ class TodoList extends Component {
               {this.state.todoItems.map((item, itemIndex) =>
                 item.value && (
                   <TodoItem key={itemIndex} input>
-                    <input type="checkbox"
+                    <input style={{color: '#504048'}} type="checkbox"  defaultChecked={item.checked}
                       onClick={() => this.handleCheckboxChange(itemIndex)}
                     />
                     <DestroyBtn onClick={() => this.deleteTodoItem(itemIndex)}>×</DestroyBtn>
-                    <ItemLabel >{item.value}</ItemLabel>
-                    {this.state.voted[0] ? (
+                    <ItemLabel checked={item.checked}>{item.value}</ItemLabel>
+                    {this.state.voted ? (
                       <Text>{`Votes: ${item.votes}`}</Text>
                     ) : (
 
@@ -61,7 +61,7 @@ class TodoList extends Component {
       account: web3.eth.accounts[0],
       pending: false,
       calling: false,
-      voted: [false, -1]
+      voted: false,
     };
 
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -73,18 +73,16 @@ class TodoList extends Component {
     this.setState({ pending: true });
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
-
-    
-    const signature = await signer.signMessage("I vote for this todo item!");
-    
+    const signature = await signer.signMessage("I vote for this todo task!");
     if (localStorage.getItem(signature)) {
       alert("You have already voted!")
+      this.setState({voted: true})
     } else {
-      this.setState({ voted: [true, position] });
+      this.setState({ voted: true });
       await this.todoList.makeVote(position, { from: this.state.account });
-      const todoItems = await this.getTodoItems();
-      this.setState({ todoItems, pending: false });  
       localStorage.setItem(signature, signature)
+      const todoItems = await this.getTodoItems();
+      this.setState({ todoItems});
     }
 
   }
@@ -98,6 +96,8 @@ class TodoList extends Component {
 
   async handleCheckboxChange(position) {    
     await this.todoList.check(position, { from: this.state.account });
+    const todoItems = await this.getTodoItems();
+    this.setState({ todoItems});
   }
 
   async handleSubmit({ key }) {
@@ -109,18 +109,15 @@ class TodoList extends Component {
 
     const todoItems = await this.getTodoItems();
 
-    this.setState({ todoItems, newItem: '', pending: false });
+    this.setState({ todoItems, newItem: ''});
   }
 
   async getTodoItems() {
-    this.setState({ calling: true });
 
     const todoItemsResp = await this.todoList.getTodoItems.call();
     const todoItems = mapReponseToJSON(
-      todoItemsResp, ['value', 'active', 'votes'], 'arrayOfObject'
+      todoItemsResp, ['value', 'votes','checked'], 'arrayOfObject'
     );
-
-    this.setState({ calling: false });
     return todoItems;
   }
 
@@ -129,7 +126,7 @@ class TodoList extends Component {
     await this.todoList.deleteTodoItem(position, { from: this.state.account });
     const todoItems = await this.getTodoItems();
 
-    this.setState({ todoItems, pending: false });
+    this.setState({ todoItems});
   }
 }
 
@@ -169,6 +166,7 @@ const Text = styled.p`
   color: #be6043;
   display: inline-block;
   float: right;
+  margin: 1%
 
 `
 
@@ -229,7 +227,7 @@ const ItemLabel = styled.label`
   display: inline-block;
   line-height: 1.2;
   transition: color 0.4s;
-  textDecoration: ${props => props.checked ? 'line-through' : 'none'},
+  textDecoration: ${props => props.checked ? 'line-through' : 'none'};
 `;
 
 const Button = styled.button`

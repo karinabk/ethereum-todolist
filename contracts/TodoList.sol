@@ -58,11 +58,7 @@ contract TodoList {
 
     function deleteTodoItem(uint256 index) public returns (bool success) {
         if (index >= todoItems.length) return false;
-
-        for (uint256 i = index; i < todoItems.length - 1; i++) {
-            todoItems[i] = todoItems[i + 1];
-        }
-
+        todoItems[index] = todoItems[todoItems.length-1];
         delete todoItems[todoItems.length - 1];
         return true;
     }
